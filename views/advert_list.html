@@ -44,42 +44,101 @@
                                 <th>操作</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for item in adverts %}
-                            <tr>
-                                <td>1</td>
-                                <td>{{ item.title}}</td>
-                                <td><img src="/public/uploads/{{ item.image }}" style="width: 100px;height: 100px;"></td>
-                                <td>{{ item.link}}</td>
-                                <td>{{ item.start_time}}</td>
-                                <td>{{ item.end_time}}</td>
-                                <td>
-                                    <a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
-                                    <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+
+                <div>                 
+                    <tbody id="rendertbody">
+                    
+                    </tbody>
+                </table>
+
+
+                </div>
+                       
                 </div>
                 <!-- 分页 -->
-                <ul class="pagination pull-right">
-                <li><a href="/advert/list?page={{ page-1 }}">上一页</a></li>
-             {% for i in range(0,totalPage) -%} 
-                    
-                    {% if (i+1) === page %}
-                    <li class="active"><a href="/advert/list?page={{ i+1 }}">{{ i+1 }}</a></li>
-                    {% else %}
-                    <li><a href="/advert/list?page={{ i+1 }}">{{ i+1 }}</a></li>
-                    {% endif %}
-                  
-
- 
-            {%- endfor %}
-                    <li><a href="/advert/list?page ={{ page+1 }}">下一页</a></li>
+                <ul class="pagination pull-right" id="pagination">
+               
                 </ul>
             </div>
-        </div>
-        
+        </div>    
  </div>
+ <script type="text/html" id="ABC">
+ <% adverts.forEach(function (value,index){ %>
+        
+  <tr>
+   <td> <%= index+1 %> </td>
+   <td> <%= value.title %> </td>
+   <td> <img src="/public/uploads/<%= value.image %>" style="width: 100px;height: 100px;"></td>
+   <td> <%= value.link %> </td>
+   <td> <%= value.start_time %> </td>
+   <td> <%= value.end_time %> </td>
+   <td>
+       <a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
+       <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+   </td>
+</tr>  
+
+
+ <% }) %>
+    
+</script>
+
+
+
+
+
+ {% endblock %}
+
+ {% block script %}
+  <script src="/node_modules/art-template/dist/template-native.js"></script>
+  <script src="/node_modules/twbs-pagination/jquery.twbsPagination.min.js"></script>
+  <script>
+    var pageSize = 6
+    // $("#rendertbody").html = template("art-temlate",adverts)
+    console.log(2)
+    $.ajax({
+      url: "/advert/page",
+      type: "get",
+      success: function(data){
+     if(data.err_code === 0) {
+       
+        $('#pagination').twbsPagination({
+        totalPages: Math.ceil(data.totalPage / pageSize),
+        visiblePages: 7,
+        onPageClick: function (event, page) {
+        	// console.log(page)
+            $.ajax({
+                 url: "/advert/pagemodul",
+                 type: "get",
+                 data: {
+                 	pageSize,
+                 	page
+                 },
+                 dataType: "json",
+                 success: function(data){
+                 	console.log(data.adverts)
+                  var  shtml = template("ABC",{
+                    	adverts:data.adverts
+                    })
+                    
+                   $("#rendertbody").html(shtml) 
+              
+                 }
+
+
+
+            })
+            
+        }
+    })
+         }
+          
+
+
+      }
+  
+
+  })
+  
+  </script>
  {% endblock %}

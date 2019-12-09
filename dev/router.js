@@ -54,32 +54,68 @@ router.post("/advert/add",(req,res,next) => {
       
    })
   
+//查询
+router.get("/advert/list",(req,res,next) => {
+     res.render("advert_list.html")  
+})
+
+
+//异步无刷新分页
+router.get("/advert/page",(req,res,next) => {
+  Advert.count((err,count) =>{
+
+    res.json({
+      err_code:0,
+      totalPage:count
+  })
+  })
+})
+
+router.get("/advert/pagemodul",(req,res,next) => {
+const pageSize = Number.parseInt(req.query.pageSize)
+const page = Number.parseInt(req.query.page)
+  Advert
+       .find()
+       .limit(pageSize)
+       .skip(pageSize*(page-1))
+       .exec((err,adverts) => {
+         if(err){return next(err)}
+         res.json({
+          err_code:0,
+          adverts:adverts
+      })
+
+
+       })
+       
+})
+
 
 
 //查询
-router.get("/advert/list",(req,res,next) => {
-    const  page = Number.parseInt(req.query.page,10)
-    const  pagesize = 5
+// router.get("/advert/list",(req,res,next) => {
+//     const  page = Number.parseInt(req.query.page,10)
+//     const  pagesize = 5
     
-    Advert
-         .find()
-         .limit(pagesize)
-         .skip((page-1)*pagesize)
-         .exec((err, adverts) => {
-            if (err) {
-              return next(err)
-            }
-    Advert.count((err,count) =>{
-      const  totalPage = Math.ceil(count/pagesize)
+//     Advert
+//          .find()
+//          .limit(pagesize)
+//          .skip((page-1)*pagesize)
+//          .exec((err, adverts) => {
+//             if (err) {
+//               return next(err)
+//             }
+//     Advert.count((err,count) =>{
+//       const  totalPage = Math.ceil(count/pagesize)
     
-      res.render("advert_list.html",{
-        adverts,
-        totalPage,
-        page
-      })
-  })
-})
-})
+//       res.render("advert_list.html",{
+//         adverts,
+//         totalPage,
+//         page
+//       })
+//   })
+// })
+// })
 
 
 //remove
